@@ -8,11 +8,23 @@ import Foundation
 @Observable
 class CharacterViewModel {
 
-    var arrCharacters = [
-        Character(id: 1, name: "Rick Sanchez", status: "Alive", species: "Human", image: ""),
-        Character(id: 2, name: "Morty Smith", status: "Alive", species: "Human", image: "")
-    ]
+    var arrCharacters = [Character]()
 
     func getCharacters() async {
+        guard let url = URL(string: "https://rickandmortyapi.com/api/character")
+        else { return }
+
+        let urlRequest = URLRequest(url: url)
+
+        do {
+            let (data, response) = try await URLSession.shared.data(for: urlRequest)
+
+            guard (response as? HTTPURLResponse)?.statusCode == 200 else { return }
+
+            let results = try JSONDecoder().decode(CharacterResponse.self, from: data)
+            arrCharacters = results.results
+
+        } catch {
+        }
     }
 }
